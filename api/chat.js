@@ -15,7 +15,8 @@ export default async function handler(req, res) {
         { role: 'system', content: 'You are a friendly, concise vocabulary tutor. Given a target word and a sentence the user spoke, tell them in 1-2 short sentences whether they used the word correctly, and briefly correct or praise them.' },
         { role: 'user', content: `Word: "${word}". Sentence: "${sentence}"` }
       ],
-      max_tokens: 100
+      reasoning_effort: 'low',
+      max_tokens: 300
     })
   });
 
