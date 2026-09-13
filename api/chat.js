@@ -20,6 +20,7 @@ export default async function handler(req, res) {
   });
 
   const data = await groqRes.json();
+  console.error('GROQ RESPONSE:', JSON.stringify(data));
   const reply = data.choices?.[0]?.message?.content || "Sorry, I couldn't process that.";
   res.status(200).json({ reply });
 }
