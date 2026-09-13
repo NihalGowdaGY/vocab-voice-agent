@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Vocab Voice Tutor</title>
+<style>
+  body { font-family: system-ui, sans-serif; background:#111; color:#eee; text-align:center; padding:40px; }
+  #word { font-size: 2rem; font-weight:bold; margin: 20px 0; color:#4ea8ff; }
+  #mic { font-size: 3rem; background:none; border:none; cursor:pointer; }
+  #mic.listening { animation: pulse 1s infinite; }
+  @keyframes pulse { 0%{transform:scale(1);} 50%{transform:scale(1.2);} 100%{transform:scale(1);} }
+  #status { margin-top: 10px; color:#888; }
+  #transcript { max-width:500px; margin:30px auto; text-align:left; background:#1c1c1c; padding:16px; border-radius:8px; min-height:80px; }
+  .you { color:#4ea8ff; }
+  .ai { color:#7CFC00; }
+</style>
+</head>
+<body>
+
+<div>Word of the Day</div>
+<div id="word">ubiquitous</div>
+
+<button id="mic">🎤</button>
+<div id="status">Tap mic and use the word in a sentence</div>
+
+<div id="transcript"></div>
+
+<script>
+const words = ["ubiquitous","ephemeral","meticulous","resilient","candid","astute","tenacious","pragmatic"];
+const wordEl = document.getElementById('word');
+const micBtn = document.getElementById('mic');
+const statusEl = document.getElementById('status');
+const transcriptEl = document.getElementById('transcript');
+
+let currentWord = words[Math.floor(Math.random()*words.length)];
+wordEl.textContent = currentWord;
+
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = new SpeechRecognition();
+recognition.lang = 'en-US';
+recognition.interimResults = false;
+
+micBtn.onclick = () => {
+  micBtn.classList.add('listening');
+  statusEl.textContent = "Listening...";
+  recognition.start();
+};
+
+recognition.onresult = async (event) => {
+  const said = event.results[0][0].transcript;
+  micBtn.classList.remove('listening');
+  statusEl.textContent = "Processing...";
+  transcriptEl.innerHTML += `<p class="you"><b>You:</b> ${said}</p>`;
+
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ word: currentWord, sentence: said })
+  });
+  const data = await res.json();
+
+  transcriptEl.innerHTML += `<p class="ai"><b>Tutor:</b> ${data.reply}</p>`;
+  statusEl.textContent = "Tap mic to try again";
+
+  const utter = new SpeechSynthesisUtterance(data.reply);
+  speechSynthesis.speak(utter);
+};
+
+recognition.onerror = () => {
+  micBtn.classList.remove('listening');
+  statusEl.textContent = "Error — tap mic to retry";
+};
+</script>
+</body>
+</html>
