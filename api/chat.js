@@ -10,7 +10,7 @@ export default async function handler(req, res) {
       'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
     },
     body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
+      model: 'openai/gpt-oss-20b',
       messages: [
         { role: 'system', content: 'You are a friendly, concise vocabulary tutor. Given a target word and a sentence the user spoke, tell them in 1-2 short sentences whether they used the word correctly, and briefly correct or praise them.' },
         { role: 'user', content: `Word: "${word}". Sentence: "${sentence}"` }
